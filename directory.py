@@ -15,15 +15,13 @@ class Directory:
     directory_uri = '/search/basic/results'
 
     @classmethod
-    def search(cls, query):
-        data = {'search[generic_search_terms]': query}
-        response = requests.post(cls.base_url + cls.directory_uri, data=data)
-        return BeautifulSoup(response.text)
-
-    @classmethod
-    def id_search(cls, andrew_id):
-        url = "https://directory.andrew.cmu.edu/search/basic/results/cmuAndrewId=%s" % andrew_id
-        response = requests.get(url)
+    def search(cls, query=None, andrew_id=None):
+        if andrew_id:
+            url = "https://directory.andrew.cmu.edu/search/basic/results/cmuAndrewId=%s" % andrew_id
+            response = requests.get(url)
+        else:
+            data = {'search[generic_search_terms]': query}
+            response = requests.post(cls.base_url + cls.directory_uri, data=data)
         return BeautifulSoup(response.text)
 
     @classmethod
@@ -69,13 +67,13 @@ class Directory:
         if andrewid is not None:
             if not valid_andrew_id(andrewid):
                 raise ValueError('Given Andrew ID is not valid.')
-            soup = cls.id_search(andrewid)
+            soup = cls.search(andrew_id=andrewid)
             results = soup.find(id='search_results')
-            if 'people matched your search criteria' in results.h1.get_text():
+            if results.h1 and 'people matched your search criteria' in results.h1.get_text():
                 raise ValueError('Not a unique Andrew ID: %s' % results.h1.get_text())
-            return parse_person_soup(cls.search(andrewid))
+            return parse_person_soup(soup)
         elif query is not None:
-            soup = cls.search(query)
+            soup = cls.search(query=query)
             if soup.find(id='no_results_error'):
                 return []
             results = soup.find(id='search_results')
@@ -90,8 +88,8 @@ class Directory:
             return ValueError('Must provide either a search query or a valid Andrew ID.')
 
 if __name__ == '__main__':
-    try:
+    # try:
         info = Directory.get_info(andrewid=sys.argv[1])
         print(info)
-    except:
-        print('usage: ./directory.py [andrewid]')
+    # except:
+    #     print('usage: ./directory.py [andrewid]')
