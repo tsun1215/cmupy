@@ -2,8 +2,7 @@
 
 import re
 import sys
-import urllib
-import urllib2
+import requests
 
 from bs4 import BeautifulSoup
 
@@ -12,17 +11,17 @@ def valid_andrew_id(andrewid):
     return type(andrewid) is str and re.match(r'^[a-zA-Z][a-zA-Z0-9]{1,7}$', andrewid) is not None
 
 class Directory:
-    base_url = 'http://directory.andrew.cmu.edu'
+    base_url = 'https://directory.andrew.cmu.edu'
     directory_uri = '/search/basic/results'
 
     @classmethod
     def search(cls, query):
-        data = urllib.urlencode({ 'search[generic_search_terms]': query })
-        req = urllib2.Request(cls.base_url + cls.directory_uri, data)
-        return BeautifulSoup(urllib2.urlopen(req).fp)
+        data = {'search[generic_search_terms]': query}
+        response = requests.post(cls.base_url + cls.directory_uri, data=data)
+        return BeautifulSoup(response.text)
 
     @classmethod
-    def get_info(cls, query=None, andrewid=None):
+    def get_info(cls, query=None):
         '''
         Given a query, returns a list of all the people who match
         that query. Given a valid Andrew ID, returns the person with
