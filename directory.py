@@ -88,8 +88,8 @@ class Directory:
             return ValueError('Must provide either a search query or a valid Andrew ID.')
 
 if __name__ == '__main__':
-    # try:
+    try:
         info = Directory.get_info(andrewid=sys.argv[1])
         print(info)
-    # except:
-    #     print('usage: ./directory.py [andrewid]')
+    except:
+        print('usage: ./directory.py [andrewid]')
