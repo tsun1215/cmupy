@@ -11,7 +11,7 @@ Scheduling.
 import datetime
 import itertools
 import json
-import urllib2
+import requests
 
 def current_semester():
     '''
@@ -52,23 +52,26 @@ class Scheduling:
         '''
         Make a request to the scheduling API
         '''
-        req_url = 'https://apis.scottylabs.org/v1/schedule%s?app_id=%s&app_secret_key=%s' % (uri, self.id, self.secret_key)
+        req_url = 'https://apis.scottylabs.org/v1/schedule%s' % (uri)
+        params = {
+            "app_id": self.id,
+            "app_secret_key": self.secret_key,
+        }
         if limit is not None:
-            req_url += '&limit=' + str(limit)
+            params["limit"] = str(limit)
         if page is not None:
-            req_url += '&page=' + str(page)
-        if debug: print('[DEBUG] GET %s' % req_url)
-        req = urllib2.Request(req_url)
-        handler = urllib2.urlopen(req)
-        if handler.getcode() != 200:
+            params["page"] = str(page)
+        req = requests.get(req_url, params=params)
+        if debug: print('[DEBUG] GET %s' % req.url)
+        if req.status_code != 200:
             try:
-                return json.load(handler.fp)
+                return req.json()
             except:
                 return {
-                    'error': '%d: %s' % (handler.getcode(), handler.msg)
+                    'error': 'No JSON object could be decoded'
                 }
         try:
-            return json.load(handler.fp)
+            return req.json()
         except:
             return None
 
