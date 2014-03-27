@@ -21,6 +21,12 @@ class Directory:
         return BeautifulSoup(response.text)
 
     @classmethod
+    def id_search(cls, andrew_id):
+        url = "https://directory.andrew.cmu.edu/search/basic/results/cmuAndrewId=%s" % andrew_id
+        response = requests.get(url)
+        return BeautifulSoup(response.text)
+
+    @classmethod
     def get_info(cls, query=None):
         '''
         Given a query, returns a list of all the people who match
@@ -63,7 +69,7 @@ class Directory:
         if andrewid is not None:
             if not valid_andrew_id(andrewid):
                 raise ValueError('Given Andrew ID is not valid.')
-            soup = cls.search(andrewid)
+            soup = cls.id_search(andrewid)
             results = soup.find(id='search_results')
             if 'people matched your search criteria' in results.h1.get_text():
                 raise ValueError('Not a unique Andrew ID: %s' % results.h1.get_text())
