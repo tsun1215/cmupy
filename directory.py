@@ -27,7 +27,7 @@ class Directory:
         return BeautifulSoup(response.text)
 
     @classmethod
-    def get_info(cls, query=None):
+    def get_info(cls, query=None, andrewid=None):
         '''
         Given a query, returns a list of all the people who match
         that query. Given a valid Andrew ID, returns the person with
